@@ -170,8 +170,7 @@ const Dashboard = () => {
                     <Switch 
                       id="burn-after-reading" 
                       checked={burnAfterReading} 
-                      onCheckedChange={setBurnAfterReading} 
-                      size="sm"
+                      onCheckedChange={setBurnAfterReading}
                     />
                   </div>
                 </div>
