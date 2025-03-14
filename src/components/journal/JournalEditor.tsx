@@ -50,13 +50,13 @@ const JournalEditor = ({ mood }: JournalEditorProps) => {
       case 'Calm':
         return 'What is bringing you peace today? What makes you feel grounded?';
       case 'Neutral':
-        return 'How is your day going? What's on your mind?';
+        return 'How is your day going? What\'s on your mind?';
       case 'Sad':
-        return 'What's weighing on you today? How can you be gentle with yourself?';
+        return 'What\'s weighing on you today? How can you be gentle with yourself?';
       case 'Angry':
-        return 'What triggered this feeling? What needs aren't being met?';
+        return 'What triggered this feeling? What needs aren\'t being met?';
       case 'Anxious':
-        return 'What worries are on your mind? What's one small step you can take?';
+        return 'What worries are on your mind? What\'s one small step you can take?';
       default:
         return 'What would you like to write about today?';
     }
