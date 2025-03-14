@@ -1,28 +1,19 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
-import JournalEditor from '@/components/journal/JournalEditor';
-import MoodSelector from '@/components/journal/MoodSelector';
-import JournalTimeline from '@/components/journal/JournalTimeline';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Loader2, RefreshCw, Flame, AlertCircle } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, RefreshCw, Flame, BookText, History as HistoryIcon, Sparkle } from 'lucide-react';
 
 const Dashboard = () => {
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [dailyPrompt, setDailyPrompt] = useState<string>('');
   const [promptLoading, setPromptLoading] = useState(false);
-  const [isRantMode, setIsRantMode] = useState(false);
-  const [burnAfterReading, setBurnAfterReading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -79,24 +70,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
-  };
-
-  const toggleRantMode = () => {
-    setIsRantMode(!isRantMode);
-    if (!isRantMode) {
-      setSelectedMood('Angry');
-      toast({
-        title: 'Rant Mode Activated',
-        description: 'Go ahead and let it all out. Your feelings are valid.',
-      });
-    } else {
-      setSelectedMood(null);
-    }
-  };
-
   if (loading) {
     return (
       <Layout>
@@ -109,96 +82,109 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="font-serif text-2xl">Welcome, {user?.email}</h1>
-        <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
+      <div className="mb-6">
+        <h1 className="font-serif text-2xl md:text-3xl">Welcome, <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">{user?.email?.split('@')[0] || 'Friend'}</span></h1>
+        <p className="text-muted-foreground mt-2">Your mindful journey continues today.</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <Card className="h-full bg-gradient-to-br from-blue-50/80 to-purple-50/80 dark:from-blue-950/30 dark:to-purple-950/30 border-blue-200 dark:border-blue-800/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="font-serif text-xl flex items-center">
+                <Sparkle className="h-5 w-5 mr-2 text-blue-500" />
+                Today's Reflection
+              </CardTitle>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={fetchDailyPrompt} 
+                disabled={promptLoading}
+                title="Refresh prompt"
+              >
+                {promptLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <p className="italic text-muted-foreground">
+                {promptLoading ? 'Loading your prompt...' : dailyPrompt}
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+                <Link to="/journal">
+                  <BookText className="h-4 w-4 mr-2" />
+                  Write in Journal
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card className="h-full bg-gradient-to-br from-red-50/80 to-orange-50/80 dark:from-red-950/30 dark:to-orange-950/30 border-red-200 dark:border-red-800/50">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="font-serif text-xl flex items-center">
+                <Flame className="h-5 w-5 mr-2 text-red-500" />
+                Need to Vent?
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Sometimes we need a safe space to express our frustrations. Rant Mode provides a judgment-free zone where you can let it all out.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600">
+                <Link to="/rant-mode">
+                  <Flame className="h-4 w-4 mr-2" />
+                  Enter Rant Mode
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
       </div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-8"
+        transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <Card>
+        <Card className="bg-gradient-to-br from-green-50/80 to-teal-50/80 dark:from-green-950/30 dark:to-teal-950/30 border-green-200 dark:border-green-800/50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="font-serif text-xl">Today's Reflection Prompt</CardTitle>
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={fetchDailyPrompt} 
-              disabled={promptLoading}
-              title="Refresh prompt"
-            >
-              {promptLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-            </Button>
+            <CardTitle className="font-serif text-xl flex items-center">
+              <HistoryIcon className="h-5 w-5 mr-2 text-green-500" />
+              Your Journey So Far
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="italic text-muted-foreground">
-              {promptLoading ? 'Loading your prompt...' : dailyPrompt}
+            <p className="text-muted-foreground">
+              Review your past entries and see how far you've come in your reflective journey.
             </p>
           </CardContent>
+          <CardFooter>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/history">
+                <HistoryIcon className="h-4 w-4 mr-2" />
+                View Journal History
+              </Link>
+            </Button>
+          </CardFooter>
         </Card>
       </motion.div>
-
-      <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-8">
-        <Card className="flex-1">
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Flame className={`h-5 w-5 ${isRantMode ? 'text-red-500' : 'text-muted-foreground'}`} />
-              <Label htmlFor="rant-mode" className="flex-1">Rant Mode</Label>
-              <Switch 
-                id="rant-mode" 
-                checked={isRantMode} 
-                onCheckedChange={toggleRantMode} 
-              />
-            </div>
-            
-            {isRantMode && (
-              <div className="flex items-start space-x-2 mb-4 bg-muted/50 p-3 rounded-md">
-                <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div className="space-y-2 flex-1">
-                  <p className="text-sm">In Rant Mode, you can freely express your frustrations.</p>
-                  <div className="flex items-center space-x-2">
-                    <Label htmlFor="burn-after-reading" className="text-xs text-muted-foreground">
-                      Burn After Writing
-                    </Label>
-                    <Switch 
-                      id="burn-after-reading" 
-                      checked={burnAfterReading} 
-                      onCheckedChange={setBurnAfterReading}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="write" className="w-full">
-        <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-6">
-          <TabsTrigger value="write">Write</TabsTrigger>
-          <TabsTrigger value="entries">Your Entries</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="write" className="space-y-4">
-          <MoodSelector onSelect={setSelectedMood} selectedMood={selectedMood} />
-          <JournalEditor 
-            mood={selectedMood} 
-            isRantMode={isRantMode} 
-            burnAfterReading={burnAfterReading} 
-          />
-        </TabsContent>
-        
-        <TabsContent value="entries">
-          <JournalTimeline />
-        </TabsContent>
-      </Tabs>
     </Layout>
   );
 };
