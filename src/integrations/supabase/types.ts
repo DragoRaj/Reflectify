@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_prompts: {
+        Row: {
+          created_at: string
+          id: string
+          prompt: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          prompt: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          prompt?: string
+          type?: string
+        }
+        Relationships: []
+      }
       appliances: {
         Row: {
           consumption: number | null
@@ -113,6 +134,39 @@ export type Database = {
         }
         Relationships: []
       }
+      journal_entries: {
+        Row: {
+          burn_after_reading: boolean | null
+          content: string | null
+          created_at: string
+          id: string
+          is_rant: boolean | null
+          mood: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          burn_after_reading?: boolean | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_rant?: boolean | null
+          mood?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          burn_after_reading?: boolean | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_rant?: boolean | null
+          mood?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -180,6 +234,33 @@ export type Database = {
           monthly_bill?: number | null
           rate_per_kwh?: number | null
           total_consumption?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          dark_mode: boolean | null
+          font_size: string | null
+          notification_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dark_mode?: boolean | null
+          font_size?: string | null
+          notification_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dark_mode?: boolean | null
+          font_size?: string | null
+          notification_enabled?: boolean | null
           updated_at?: string
           user_id?: string
         }
