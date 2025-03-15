@@ -49,6 +49,7 @@ const Settings = () => {
         
         if (preferences) {
           setNotificationsEnabled(preferences.notification_enabled);
+          // Now this property exists in the database
           setDailyReminderEnabled(preferences.daily_reminder_enabled || false);
         } else {
           // Create default preferences

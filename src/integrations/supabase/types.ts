@@ -242,6 +242,7 @@ export type Database = {
       user_preferences: {
         Row: {
           created_at: string
+          daily_reminder_enabled: boolean | null
           dark_mode: boolean | null
           font_size: string | null
           notification_enabled: boolean | null
@@ -250,6 +251,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          daily_reminder_enabled?: boolean | null
           dark_mode?: boolean | null
           font_size?: string | null
           notification_enabled?: boolean | null
@@ -258,6 +260,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          daily_reminder_enabled?: boolean | null
           dark_mode?: boolean | null
           font_size?: string | null
           notification_enabled?: boolean | null
