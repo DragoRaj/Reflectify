@@ -11,7 +11,7 @@ import Auth from "./pages/auth/Auth";
 import Dashboard from "./pages/Dashboard";
 import Journal from "./pages/Journal";
 import RantMode from "./pages/RantMode";
-import History from "./pages/History";
+import Timeline from "./pages/History";
 import Settings from "./pages/Settings";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
@@ -53,7 +53,7 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/journal" element={<Journal />} />
               <Route path="/rant-mode" element={<RantMode />} />
-              <Route path="/history" element={<History />} />
+              <Route path="/history" element={<Timeline />} />
               <Route path="/settings" element={<Settings />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

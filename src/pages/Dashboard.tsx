@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -14,6 +13,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [dailyPrompt, setDailyPrompt] = useState<string>('');
   const [promptLoading, setPromptLoading] = useState(false);
+  const [usedPrompts, setUsedPrompts] = useState<string[]>([]);
+  const [userName, setUserName] = useState<string>('');
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -27,7 +28,24 @@ const Dashboard = () => {
       }
       
       setUser(data.session.user);
+      
+      // Get the user's name from metadata
+      if (data.session.user.user_metadata && data.session.user.user_metadata.name) {
+        setUserName(data.session.user.user_metadata.name);
+      } else {
+        // Fallback to email prefix if no name
+        setUserName(data.session.user.email?.split('@')[0] || 'Friend');
+      }
+      
       setLoading(false);
+      
+      // Get previously used prompts from localStorage
+      const today = new Date().toDateString();
+      const storedPrompts = localStorage.getItem(`usedPrompts_${today}`);
+      if (storedPrompts) {
+        setUsedPrompts(JSON.parse(storedPrompts));
+      }
+      
       fetchDailyPrompt();
     };
 
@@ -39,6 +57,12 @@ const Dashboard = () => {
           navigate('/auth');
         } else if (session && event === 'SIGNED_IN') {
           setUser(session.user);
+          // Set user name on auth state change
+          if (session.user.user_metadata && session.user.user_metadata.name) {
+            setUserName(session.user.user_metadata.name);
+          } else {
+            setUserName(session.user.email?.split('@')[0] || 'Friend');
+          }
         }
       }
     );
@@ -51,6 +75,22 @@ const Dashboard = () => {
   const fetchDailyPrompt = async () => {
     try {
       setPromptLoading(true);
+      
+      // Get today's date for tracking
+      const today = new Date().toDateString();
+      
+      // Check if we've already used 3 prompts today
+      const storedPrompts = localStorage.getItem(`usedPrompts_${today}`);
+      let currentUsedPrompts: string[] = storedPrompts ? JSON.parse(storedPrompts) : [];
+      
+      if (currentUsedPrompts.length >= 3 && dailyPrompt) {
+        // If we already have 3 prompts today, cycle through the existing ones
+        const nextPromptIndex = (currentUsedPrompts.indexOf(dailyPrompt) + 1) % 3;
+        setDailyPrompt(currentUsedPrompts[nextPromptIndex]);
+        setPromptLoading(false);
+        return;
+      }
+      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-prompt`, {
         method: 'POST',
         headers: {
@@ -61,7 +101,22 @@ const Dashboard = () => {
       });
       
       const data = await response.json();
-      setDailyPrompt(data.response);
+      const newPrompt = data.response;
+      
+      // Make sure we don't get the same prompt again
+      if (!currentUsedPrompts.includes(newPrompt)) {
+        currentUsedPrompts.push(newPrompt);
+        // Keep only the latest 3 prompts
+        if (currentUsedPrompts.length > 3) {
+          currentUsedPrompts = currentUsedPrompts.slice(-3);
+        }
+        
+        // Store in localStorage
+        localStorage.setItem(`usedPrompts_${today}`, JSON.stringify(currentUsedPrompts));
+        setUsedPrompts(currentUsedPrompts);
+      }
+      
+      setDailyPrompt(newPrompt);
     } catch (error) {
       console.error('Error fetching daily prompt:', error);
       setDailyPrompt('Take a moment to reflect on something that brought you joy recently.');
@@ -83,7 +138,7 @@ const Dashboard = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="font-serif text-2xl md:text-3xl">Welcome, <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">{user?.email?.split('@')[0] || 'Friend'}</span></h1>
+        <h1 className="font-serif text-2xl md:text-3xl">Welcome, <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">{userName}</span></h1>
         <p className="text-muted-foreground mt-2">Your mindful journey continues today.</p>
       </div>
       
@@ -117,6 +172,13 @@ const Dashboard = () => {
               <p className="italic text-muted-foreground">
                 {promptLoading ? 'Loading your prompt...' : dailyPrompt}
               </p>
+              {usedPrompts.length > 0 && (
+                <div className="text-xs text-muted-foreground mt-2">
+                  {usedPrompts.length >= 3 ? 
+                    "You've reached your daily limit of 3 new prompts. Cycling through existing ones." :
+                    `${3 - usedPrompts.length} more unique ${usedPrompts.length >= 2 ? 'prompt' : 'prompts'} available today.`}
+                </div>
+              )}
             </CardContent>
             <CardFooter>
               <Button asChild className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
@@ -179,7 +241,7 @@ const Dashboard = () => {
             <Button asChild variant="outline" className="w-full">
               <Link to="/history">
                 <HistoryIcon className="h-4 w-4 mr-2" />
-                View Journal History
+                View Timeline
               </Link>
             </Button>
           </CardFooter>

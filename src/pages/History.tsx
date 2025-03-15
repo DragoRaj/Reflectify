@@ -8,7 +8,7 @@ import JournalTimeline from '@/components/journal/JournalTimeline';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, History as HistoryIcon } from 'lucide-react';
 
-const History = () => {
+const Timeline = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -62,7 +62,7 @@ const History = () => {
         className="max-w-3xl mx-auto"
       >
         <div className="mb-6">
-          <h1 className="font-serif text-2xl md:text-3xl bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-600">Journal History</h1>
+          <h1 className="font-serif text-2xl md:text-3xl bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-600">Journal Timeline</h1>
           <p className="text-muted-foreground mt-2">
             Review your past journal entries and reflections.
           </p>
@@ -84,4 +84,4 @@ const History = () => {
   );
 };
 
-export default History;
+export default Timeline;

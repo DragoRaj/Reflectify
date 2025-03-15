@@ -11,7 +11,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Sun, Moon, Bell, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader2, Sun, Moon, Bell, Settings as SettingsIcon, LogOut, User } from 'lucide-react';
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
@@ -20,6 +21,8 @@ const Settings = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [dailyReminderEnabled, setDailyReminderEnabled] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -33,6 +36,15 @@ const Settings = () => {
       }
       
       setUser(data.session.user);
+      
+      // Get the user's name from metadata
+      if (data.session.user.user_metadata && data.session.user.user_metadata.name) {
+        setUserName(data.session.user.user_metadata.name);
+      } else {
+        // Fallback to email prefix
+        setUserName('');
+      }
+      
       setLoading(false);
       
       // Fetch user preferences
@@ -75,6 +87,11 @@ const Settings = () => {
           navigate('/auth');
         } else if (session && event === 'SIGNED_IN') {
           setUser(session.user);
+          
+          // Get the user's name from metadata on auth state change
+          if (session.user.user_metadata && session.user.user_metadata.name) {
+            setUserName(session.user.user_metadata.name);
+          }
         }
       }
     );
@@ -121,6 +138,33 @@ const Settings = () => {
     }
   };
 
+  const updateUserName = async () => {
+    if (!user || !userName.trim()) return;
+    
+    setIsUpdatingName(true);
+    
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { name: userName.trim() }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Name updated",
+        description: "Your display name has been updated successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error updating name",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingName(false);
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -147,10 +191,55 @@ const Settings = () => {
         </div>
         
         <Tabs defaultValue="appearance">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="profile" className="space-y-4">
+            <Card className="bg-gradient-to-br from-purple-50/80 to-blue-50/80 dark:from-purple-950/30 dark:to-blue-950/30">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <User className="h-5 w-5 mr-2 text-blue-500" />
+                  Profile Settings
+                </CardTitle>
+                <CardDescription>
+                  Customize how you appear in the app.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Display Name</Label>
+                  <div className="flex items-center gap-2">
+                    <Input 
+                      id="name" 
+                      value={userName}
+                      onChange={(e) => setUserName(e.target.value)}
+                      placeholder="Your display name"
+                    />
+                    <Button 
+                      onClick={updateUserName} 
+                      disabled={isUpdatingName || !userName.trim()}
+                      size="sm"
+                    >
+                      {isUpdatingName ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Update'
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    This is how you'll appear throughout the app.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
           
           <TabsContent value="appearance" className="space-y-4">
             <Card className="bg-gradient-to-br from-purple-50/80 to-pink-50/80 dark:from-purple-950/30 dark:to-pink-950/30">
@@ -181,7 +270,12 @@ const Settings = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
+                <motion.div 
+                  className="flex items-center justify-between"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <div className="space-y-0.5">
                     <Label>Notifications</Label>
                     <p className="text-sm text-muted-foreground">
@@ -195,10 +289,15 @@ const Settings = () => {
                     />
                     <Bell className={`h-5 w-5 ${notificationsEnabled ? 'text-green-500' : 'text-muted-foreground'}`} />
                   </div>
-                </div>
+                </motion.div>
                 
                 {notificationsEnabled && (
-                  <div className="flex items-center justify-between pl-6 border-l-2 border-l-muted">
+                  <motion.div 
+                    className="flex items-center justify-between pl-6 border-l-2 border-l-muted"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <div className="space-y-0.5">
                       <Label>Daily Reminder</Label>
                       <p className="text-sm text-muted-foreground">
@@ -209,7 +308,7 @@ const Settings = () => {
                       checked={dailyReminderEnabled}
                       onCheckedChange={setDailyReminderEnabled}
                     />
-                  </div>
+                  </motion.div>
                 )}
               </CardContent>
               <CardFooter>

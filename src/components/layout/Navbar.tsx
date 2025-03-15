@@ -26,12 +26,23 @@ const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const location = useLocation();
   const [user, setUser] = React.useState<any>(null);
+  const [userName, setUserName] = React.useState<string>('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user || null);
+      if (data.session?.user) {
+        setUser(data.session.user);
+        
+        // Get the user's name from metadata
+        if (data.session.user.user_metadata && data.session.user.user_metadata.name) {
+          setUserName(data.session.user.user_metadata.name);
+        } else {
+          // Fallback to email prefix
+          setUserName(data.session.user.email?.split('@')[0] || 'Account');
+        }
+      }
     };
     
     getUser();
@@ -39,6 +50,16 @@ const Navbar = () => {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user || null);
+        
+        if (session?.user) {
+          // Update user name on auth state change
+          if (session.user.user_metadata && session.user.user_metadata.name) {
+            setUserName(session.user.user_metadata.name);
+          } else {
+            // Fallback to email prefix
+            setUserName(session.user.email?.split('@')[0] || 'Account');
+          }
+        }
       }
     );
     
@@ -90,7 +111,7 @@ const Navbar = () => {
                   <Link to="/history">
                     <Button variant="ghost" className={location.pathname === '/history' ? 'bg-accent' : ''}>
                       <History className="h-4 w-4 mr-1.5" />
-                      History
+                      Timeline
                     </Button>
                   </Link>
                 </NavigationMenuItem>
@@ -125,7 +146,7 @@ const Navbar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="hidden md:flex">
-                  {user.email?.split('@')[0] || 'Account'}
+                  {userName}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -177,7 +198,7 @@ const Navbar = () => {
           <Link to="/history" className="block">
             <Button variant="ghost" className="w-full justify-start" onClick={() => setIsMobileMenuOpen(false)}>
               <History className="h-4 w-4 mr-2" />
-              History
+              Timeline
             </Button>
           </Link>
           <Link to="/settings" className="block">

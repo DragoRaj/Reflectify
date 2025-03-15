@@ -30,6 +30,7 @@ const Auth = () => {
       email: '',
       password: '',
       confirmPassword: '',
+      name: '',
     },
   });
 
@@ -59,7 +60,7 @@ const Auth = () => {
     }
   };
 
-  const onSignup = async (data: { email: string; password: string; confirmPassword: string }) => {
+  const onSignup = async (data: { email: string; password: string; confirmPassword: string; name: string }) => {
     if (data.password !== data.confirmPassword) {
       toast({
         title: 'Passwords do not match',
@@ -74,6 +75,11 @@ const Auth = () => {
       const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
+        options: {
+          data: {
+            name: data.name,
+          },
+        },
       });
 
       if (error) throw error;
@@ -158,6 +164,19 @@ const Auth = () => {
                 <CardContent>
                   <Form {...signupForm}>
                     <form onSubmit={signupForm.handleSubmit(onSignup)} className="space-y-4">
+                      <FormField
+                        control={signupForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Your Name" type="text" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <FormField
                         control={signupForm.control}
                         name="email"
