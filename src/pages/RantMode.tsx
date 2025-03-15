@@ -67,8 +67,14 @@ const RantMode = () => {
     
     if (!content.trim()) return;
     
+    // Store current content before clearing
+    const currentContent = content;
+    
     // Add user message to chat
-    setMessages([...messages, { type: 'user', content }]);
+    setMessages([...messages, { type: 'user', content: currentContent }]);
+    
+    // Clear input immediately after submitting
+    setContent('');
     
     try {
       setIsLoadingResponse(true);
@@ -82,7 +88,7 @@ const RantMode = () => {
           .from('journal_entries')
           .insert({
             user_id: sessionData.session.user.id,
-            content,
+            content: currentContent,
             mood: 'Angry',
             is_rant: true,
             burn_after_reading: burnAfterReading
@@ -100,17 +106,18 @@ const RantMode = () => {
         },
         body: JSON.stringify({ 
           promptType: 'rant-response',
-          content: content
+          content: currentContent
         }),
       });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
       
       const data = await response.json();
       
       // Add AI response to chat
-      setMessages(prev => [...prev, { type: 'assistant', content: data.response }]);
-      
-      // Clear input
-      setContent('');
+      setMessages(prev => [...prev, { type: 'assistant', content: data.response || "I understand you might be going through a difficult time. Remember that expressing your feelings is healthy, and tomorrow is a new day with new possibilities." }]);
       
       if (burnAfterReading) {
         toast({
@@ -120,9 +127,16 @@ const RantMode = () => {
         });
       }
     } catch (error: any) {
+      console.error("Error in handleSubmit:", error);
+      // Add a fallback AI response in case of error
+      setMessages(prev => [...prev, { 
+        type: 'assistant', 
+        content: "I'm having trouble responding right now, but I'm here to listen. Feel free to continue sharing your thoughts." 
+      }]);
+      
       toast({
         title: "Error",
-        description: error.message || "An error occurred",
+        description: error.message || "An error occurred with the AI response",
         variant: "destructive",
       });
     } finally {

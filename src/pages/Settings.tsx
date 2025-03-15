@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '@/components/layout/Layout';
-import { useTheme } from '@/components/theme/ThemeProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -15,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Sun, Moon, Bell, Settings as SettingsIcon, LogOut, User } from 'lucide-react';
 
 const Settings = () => {
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -25,6 +24,27 @@ const Settings = () => {
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Get initial theme from local storage or system preference
+  useEffect(() => {
+    const storedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (storedTheme) {
+      setTheme(storedTheme);
+      document.documentElement.classList.toggle('dark', storedTheme === 'dark');
+    } else {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(isDark ? 'dark' : 'light');
+      document.documentElement.classList.toggle('dark', isDark);
+    }
+  }, []);
+
+  // Handle theme changes
+  const handleThemeChange = (isDark: boolean) => {
+    const newTheme = isDark ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark', isDark);
+  };
 
   useEffect(() => {
     const checkUser = async () => {
@@ -264,7 +284,7 @@ const Settings = () => {
                     <Sun className="h-5 w-5 text-amber-500" />
                     <Switch 
                       checked={theme === 'dark'}
-                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                      onCheckedChange={handleThemeChange}
                     />
                     <Moon className="h-5 w-5 text-blue-500" />
                   </div>

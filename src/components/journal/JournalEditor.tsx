@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -89,19 +88,17 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
       }
       
       // Clear content after successful save
-      if (!burnAfterReading) {
-        setTimeout(() => {
-          setContent('');
-          setAiResponse(null);
-          setLastSaved(null);
-          setShouldRegenerateArtwork(true);
-          
-          // Navigate to history page if not in rant mode
-          if (!isRantMode) {
-            navigate('/history');
-          }
-        }, 1500);
-      }
+      setTimeout(() => {
+        setContent('');
+        setAiResponse(null);
+        setLastSaved(null);
+        setShouldRegenerateArtwork(true);
+        
+        // Navigate to history page if not in rant mode and not burn after reading
+        if (!isRantMode && !burnAfterReading) {
+          navigate('/history');
+        }
+      }, 1500);
       
     } catch (error: any) {
       toast({
