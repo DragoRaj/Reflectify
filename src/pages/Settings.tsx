@@ -49,6 +49,7 @@ const Settings = () => {
         
         if (preferences) {
           setNotificationsEnabled(preferences.notification_enabled);
+          setDailyReminderEnabled(preferences.daily_reminder_enabled || false);
         } else {
           // Create default preferences
           await supabase
@@ -56,7 +57,8 @@ const Settings = () => {
             .insert({
               user_id: data.session.user.id,
               dark_mode: theme === 'dark',
-              notification_enabled: true
+              notification_enabled: true,
+              daily_reminder_enabled: false
             });
         }
       } catch (error) {
@@ -98,6 +100,7 @@ const Settings = () => {
           user_id: user.id,
           dark_mode: theme === 'dark',
           notification_enabled: notificationsEnabled,
+          daily_reminder_enabled: dailyReminderEnabled
         });
         
       if (error) throw error;

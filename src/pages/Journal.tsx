@@ -89,7 +89,7 @@ const Journal = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-3xl mx-auto"
+        className="max-w-3xl mx-auto pb-36" // Added padding at bottom for mood selector
       >
         <div className="mb-6">
           <h1 className="font-serif text-2xl md:text-3xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Journal Entry</h1>

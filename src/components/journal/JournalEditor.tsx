@@ -7,6 +7,7 @@ import { Save, Trash } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useNavigate } from 'react-router-dom';
 
 interface JournalEditorProps {
   mood: string | null;
@@ -21,6 +22,7 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isLoadingResponse, setIsLoadingResponse] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Reset when mood changes
   useEffect(() => {
@@ -81,6 +83,21 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
       if (isRantMode && content.trim().length > 10 && !aiResponse) {
         await getAIResponse();
       }
+      
+      // Clear content after successful save
+      if (!burnAfterReading) {
+        setTimeout(() => {
+          setContent('');
+          setAiResponse(null);
+          setLastSaved(null);
+          
+          // Navigate to history page if not in rant mode
+          if (!isRantMode) {
+            navigate('/history');
+          }
+        }, 1500);
+      }
+      
     } catch (error: any) {
       toast({
         title: "Error saving entry",
@@ -193,34 +210,32 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
             </motion.div>
           )}
           
-          <div className="flex justify-between items-center">
-            <div className="text-xs text-muted-foreground">
+          <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-500/90 via-purple-500/90 to-pink-500/90 dark:from-blue-900/90 dark:via-purple-900/90 dark:to-pink-900/90 p-3 shadow-lg flex justify-between items-center">
+            <div className="text-xs text-white">
               {burnAfterReading ? (
-                <span className="text-amber-500 dark:text-amber-400">This entry will not be saved</span>
+                <span className="text-amber-300">This entry will not be saved</span>
               ) : lastSaved ? (
                 <span>Last saved: {lastSaved.toLocaleTimeString()}</span>
               ) : content ? (
                 <span>Unsaved changes</span>
               ) : null}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               <Button 
                 variant="outline"
-                size="sm"
                 onClick={handleClearEntry}
                 disabled={!content.trim()}
-                className="flex items-center gap-1"
+                className="flex items-center gap-2 bg-white text-gray-800 border-none hover:bg-gray-100"
               >
-                <Trash size={14} />
+                <Trash size={20} />
                 Clear
               </Button>
               <Button 
                 onClick={handleSave} 
                 disabled={!content.trim() || isSaving || isLoadingResponse}
-                className="flex items-center gap-1"
-                size="sm"
+                className="flex items-center gap-2 bg-white text-gray-800 border-none hover:bg-gray-100"
               >
-                <Save size={14} />
+                <Save size={20} />
                 {isSaving ? 'Saving...' : isLoadingResponse ? 'Processing...' : 'Save'}
               </Button>
             </div>

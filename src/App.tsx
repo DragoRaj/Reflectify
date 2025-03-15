@@ -16,6 +16,9 @@ import Settings from "./pages/Settings";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 
+// Update document title
+document.title = "Reflectify - Reflect. Rant. Reset.";
+
 const queryClient = new QueryClient();
 
 const App = () => {

@@ -55,7 +55,7 @@ const Navbar = () => {
     <header className="border-b border-border/40 backdrop-blur-sm sticky top-0 z-40 w-full transition-all bg-gradient-to-r from-blue-50/90 to-purple-50/90 dark:from-blue-950/80 dark:to-purple-950/80">
       <div className="container h-16 mx-auto px-4 sm:px-6 flex items-center justify-between max-w-6xl">
         <Link to="/" className="flex items-center gap-2">
-          <span className="font-serif text-2xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Mindful Journal</span>
+          <span className="font-serif text-2xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Reflectify</span>
         </Link>
         
         {user ? (
