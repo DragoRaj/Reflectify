@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
+import ArtworkDisplay from './ArtworkDisplay';
 
 interface JournalEditorProps {
   mood: string | null;
@@ -21,6 +21,7 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isLoadingResponse, setIsLoadingResponse] = useState(false);
+  const [shouldRegenerateArtwork, setShouldRegenerateArtwork] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -29,6 +30,7 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
     setContent('');
     setAiResponse(null);
     setLastSaved(null);
+    setShouldRegenerateArtwork(true);
   }, [mood, isRantMode]);
 
   // Simulated autosave function
@@ -90,6 +92,7 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
           setContent('');
           setAiResponse(null);
           setLastSaved(null);
+          setShouldRegenerateArtwork(true);
           
           // Navigate to history page if not in rant mode
           if (!isRantMode) {
@@ -141,6 +144,7 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
   const handleClearEntry = () => {
     setContent('');
     setAiResponse(null);
+    setShouldRegenerateArtwork(true);
     toast({
       title: "Entry cleared",
       description: "Your entry has been cleared",
@@ -166,6 +170,10 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
       default:
         return 'What would you like to write about today?';
     }
+  };
+
+  const handleArtworkRegenerate = () => {
+    setShouldRegenerateArtwork(true);
   };
 
   return (
@@ -208,6 +216,14 @@ const JournalEditor = ({ mood, isRantMode = false, burnAfterReading = false }: J
               <p className="text-sm font-medium mb-1">A note from your journal:</p>
               <p className="text-sm italic">{aiResponse}</p>
             </motion.div>
+          )}
+          
+          {content.length > 10 && mood && !shouldRegenerateArtwork && (
+            <ArtworkDisplay 
+              mood={mood} 
+              content={content} 
+              onRegenerate={handleArtworkRegenerate}
+            />
           )}
           
           <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-500/90 via-purple-500/90 to-pink-500/90 dark:from-blue-900/90 dark:via-purple-900/90 dark:to-pink-900/90 p-3 shadow-lg flex justify-between items-center">

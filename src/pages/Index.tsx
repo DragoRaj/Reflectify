@@ -85,7 +85,8 @@ const Index = () => {
         >
           <motion.div 
             whileHover={{ y: -5, scale: 1.02 }}
-            className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 p-6 rounded-xl shadow-md flex flex-col items-center text-center"
+            className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 p-6 rounded-xl shadow-md flex flex-col items-center text-center cursor-pointer"
+            onClick={() => navigate('/journal')}
           >
             <div className="bg-blue-100 dark:bg-blue-800/40 p-3 rounded-full mb-4">
               <BookText size={28} className="text-blue-600 dark:text-blue-400" />
@@ -96,7 +97,8 @@ const Index = () => {
           
           <motion.div 
             whileHover={{ y: -5, scale: 1.02 }}
-            className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 p-6 rounded-xl shadow-md flex flex-col items-center text-center"
+            className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 p-6 rounded-xl shadow-md flex flex-col items-center text-center cursor-pointer"
+            onClick={() => navigate('/rant-mode')}
           >
             <div className="bg-red-100 dark:bg-red-800/40 p-3 rounded-full mb-4">
               <Flame size={28} className="text-red-600 dark:text-red-400" />
@@ -107,7 +109,8 @@ const Index = () => {
           
           <motion.div 
             whileHover={{ y: -5, scale: 1.02 }}
-            className="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/30 dark:to-teal-900/30 p-6 rounded-xl shadow-md flex flex-col items-center text-center"
+            className="bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/30 dark:to-teal-900/30 p-6 rounded-xl shadow-md flex flex-col items-center text-center cursor-pointer"
+            onClick={() => navigate('/history')}
           >
             <div className="bg-green-100 dark:bg-green-800/40 p-3 rounded-full mb-4">
               <RefreshCw size={28} className="text-green-600 dark:text-green-400" />
