@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,9 +9,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
 import ArtworkDisplay from './ArtworkDisplay';
+import { MoodType } from './MoodSelector';
 
 interface JournalEditorProps {
-  mood: string | null;
+  mood: MoodType;
   isRantMode?: boolean;
   burnAfterReading?: boolean;
 }

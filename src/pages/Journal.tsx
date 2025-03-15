@@ -10,9 +10,10 @@ import JournalEditor from '@/components/journal/JournalEditor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw, Sparkle } from 'lucide-react';
+import { MoodType } from '@/components/journal/MoodSelector';
 
 const Journal = () => {
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [selectedMood, setSelectedMood] = useState<MoodType>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [dailyPrompt, setDailyPrompt] = useState<string>('');

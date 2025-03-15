@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Download, Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { MoodType } from './MoodSelector';
 
 interface ArtworkDisplayProps {
-  mood: string | null;
+  mood: MoodType;
   content: string;
   onRegenerate?: () => void;
 }
